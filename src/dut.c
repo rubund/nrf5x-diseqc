@@ -76,7 +76,7 @@ void send_bit(char val)
 void send_byte(unsigned char val)
 {
     int i;
-    char parity = 0;
+    char parity = 1;
     char bit_to_send;
     for(i=0;i<8;i++) {
         bit_to_send = (val >> (7-i)) & 0x01;
@@ -133,10 +133,13 @@ int main()
     int packetlength;
     int timeout_in_seconds = 5;
     txbuffer[0] = FRAMING_COMMAND_FROM_MASTER_NO_REPLY_REQUIRED_FIRST;
-    txbuffer[1] = ADDRESS_ANY_POSITIONER;
-    txbuffer[2] = COMMAND_DRIVE_MOTOR_EAST;
-    txbuffer[3] = timeout_in_seconds;
-    packetlength = 4;
+    //txbuffer[1] = ADDRESS_ANY_POSITIONER;
+    txbuffer[1] = ADDRESS_POLAR_POSITIONER;
+    txbuffer[2] = 0x69;
+    txbuffer[3] = 0;
+    txbuffer[4] = 0;
+    txbuffer[5] = 0;
+    packetlength = 6;
 
     while(1) {
         while(((NRF_P0->IN) >> 11) & 0x1);
