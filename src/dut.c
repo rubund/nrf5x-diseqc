@@ -53,6 +53,22 @@ void wait_for_using_timer_interrupt(int i)
     while (flag == 0) __WFE(); 
 }
 
+void send_bit(int val)
+{
+    if (val) {
+        turn_on_22khz();
+        wait_for_using_timer_interrupt(493); // 0.5 ms
+        turn_off_22khz();
+        wait_for_using_timer_interrupt(986); // 1.0 ms
+    }
+    else {
+        turn_on_22khz();
+        wait_for_using_timer_interrupt(986); // 986 is 1 ms
+        turn_off_22khz();
+        wait_for_using_timer_interrupt(493); // 0.5 ms
+    }
+}
+
 int main()
 {
 
@@ -88,10 +104,12 @@ int main()
     NRF_TIMER0->TASKS_START = 1;
 
     while(1) {
-        turn_on_22khz();
-        wait_for_using_timer_interrupt(986); // 986 is 1 ms
-        turn_off_22khz();
-        wait_for_using_timer_interrupt(986);
+        send_bit(0);
+        send_bit(0);
+        send_bit(0);
+        send_bit(1);
+        send_bit(1);
+        send_bit(1);
     }
 
 }
