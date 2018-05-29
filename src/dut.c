@@ -1,6 +1,8 @@
 #include <nrf.h>
 #include <nrf_delay.h>
+#include "diseqc_constants.h"
 
+static unsigned char txbuffer[30];
 
 static uint16_t pwm_seq[8] = {46,30,10,91,100,50,40,100};
 
@@ -74,12 +76,24 @@ void send_bit(char val)
 void send_byte(unsigned char val)
 {
     int i;
+    char parity = 0;
     char bit_to_send;
     for(i=0;i<8;i++) {
         bit_to_send = (val >> (7-i)) & 0x01;
         send_bit(bit_to_send);
+        parity = parity ^ bit_to_send;
+    }
+    send_bit(parity);
+}
+
+void send_buffer(unsigned char *buffer, int length)
+{
+    int i;
+    for(i=0;i<length;i++) {
+        send_byte(buffer[i]);
     }
 }
+
 
 int main()
 {
@@ -115,8 +129,16 @@ int main()
     NRF_TIMER0->TASKS_CLEAR = 1;
     NRF_TIMER0->TASKS_START = 1;
 
+    int packetlength;
+    int timeout_in_seconds = 5;
+    txbuffer[0] = FRAMING_COMMAND_FROM_MASTER_NO_REPLY_REQUIRED_FIRST;
+    txbuffer[1] = ADDRESS_ANY_POSITIONER;
+    txbuffer[2] = COMMAND_DRIVE_MOTOR_EAST;
+    txbuffer[3] = timeout_in_seconds;
+    packetlength = 4;
+
     while(1) {
-        send_byte(0xa2);
+        send_buffer(txbuffer, packetlength);
         nrf_delay_ms(100);
     }
 
