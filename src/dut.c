@@ -122,6 +122,7 @@ int main()
     NRF_TIMER0->INTENSET = 0x00010000;
     NRF_TIMER0->PRESCALER = 4;
     NRF_CLOCK->TASKS_HFCLKSTART = 1;
+    NRF_P0->PIN_CNF[11] = 0x000000C;
 
     my_setup_pwm(27);
     enable_pwm();
@@ -138,8 +139,10 @@ int main()
     packetlength = 4;
 
     while(1) {
+        while(((NRF_P0->IN) >> 11) & 0x1);
         send_buffer(txbuffer, packetlength);
         nrf_delay_ms(100);
+        while((((NRF_P0->IN) >> 11) & 0x1) == 0);
     }
 
 }
