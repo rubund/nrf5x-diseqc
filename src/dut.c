@@ -52,20 +52,32 @@ void wait_for_using_timer_interrupt(int i)
     flag = 0;
     while (flag == 0) __WFE(); 
 }
+int val0_5ms = 492;
+int val1_0ms = 985;
 
-void send_bit(int val)
+void send_bit(char val)
 {
     if (val) {
         turn_on_22khz();
-        wait_for_using_timer_interrupt(493); // 0.5 ms
+        wait_for_using_timer_interrupt(val0_5ms); // 0.5 ms
         turn_off_22khz();
-        wait_for_using_timer_interrupt(986); // 1.0 ms
+        wait_for_using_timer_interrupt(val1_0ms); // 1.0 ms
     }
     else {
         turn_on_22khz();
-        wait_for_using_timer_interrupt(986); // 986 is 1 ms
+        wait_for_using_timer_interrupt(val1_0ms); // 986 is 1 ms
         turn_off_22khz();
-        wait_for_using_timer_interrupt(493); // 0.5 ms
+        wait_for_using_timer_interrupt(val0_5ms); // 0.5 ms
+    }
+}
+
+void send_byte(unsigned char val)
+{
+    int i;
+    char bit_to_send;
+    for(i=0;i<8;i++) {
+        bit_to_send = (val >> (7-i)) & 0x01;
+        send_bit(bit_to_send);
     }
 }
 
@@ -104,12 +116,8 @@ int main()
     NRF_TIMER0->TASKS_START = 1;
 
     while(1) {
-        send_bit(0);
-        send_bit(0);
-        send_bit(0);
-        send_bit(1);
-        send_bit(1);
-        send_bit(1);
+        send_byte(0xa2);
+        nrf_delay_ms(100);
     }
 
 }
