@@ -4,6 +4,8 @@
 
 static uint16_t pwm_seq[8] = {46,30,10,91,100,50,40,100};
 
+int flag = 0;
+
 static void my_setup_pwm(int pin_no)
 {
     NRF_PWM0->PSEL.OUT[0] = (pin_no << PWM_PSEL_OUT_PIN_Pos) |
@@ -41,6 +43,16 @@ static void turn_off_22khz()
     NRF_PWM0->TASKS_NEXTSTEP = 1;
 }
 
+void wait_for_using_timer_interrupt(int i)
+{
+    NRF_TIMER0->CC[0] = i;
+    NRF_TIMER0->TASKS_CLEAR = 1;
+    NRF_TIMER0->TASKS_START = 1;
+
+    flag = 0;
+    while (flag == 0) __WFE(); 
+}
+
 int main()
 {
 
@@ -62,17 +74,34 @@ int main()
   //  NRF_PWM0->COUNTERTOP = (16000 << PWM_COUNTERTOP_COUNTERTOP_Pos);
   //
   //  NRF_PWM0->TASKS_SEQSTART[0] = 1;
+
+    NVIC_ClearPendingIRQ(TIMER0_IRQn);
+    NVIC_EnableIRQ(TIMER0_IRQn);
+    NRF_TIMER0->INTENSET = 0x00010000;
+    NRF_TIMER0->PRESCALER = 4;
     NRF_CLOCK->TASKS_HFCLKSTART = 1;
 
     my_setup_pwm(27);
     enable_pwm();
 
+    NRF_TIMER0->TASKS_CLEAR = 1;
+    NRF_TIMER0->TASKS_START = 1;
+
     while(1) {
         turn_on_22khz();
-        nrf_delay_ms(10);
+        wait_for_using_timer_interrupt(986); // 986 is 1 ms
         turn_off_22khz();
-        nrf_delay_ms(5);
+        wait_for_using_timer_interrupt(986);
     }
 
 }
 
+void TIMER0_IRQHandler(void)
+{
+    if(NRF_TIMER0->EVENTS_COMPARE[0]) {
+        NRF_TIMER0->EVENTS_COMPARE[0] = 0;
+        NRF_TIMER0->TASKS_CLEAR = 0;
+        NRF_TIMER0->TASKS_STOP = 0;
+        flag = 1;
+    }
+}
