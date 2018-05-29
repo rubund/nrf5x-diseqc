@@ -12,7 +12,6 @@ static void my_setup_pwm(int pin_no)
     //NRF_PWM0->PSEL.OUT[1] = (28 << PWM_PSEL_OUT_PIN_Pos) |
     //                        (PWM_PSEL_OUT_CONNECT_Connected <<
     //                                                 PWM_PSEL_OUT_CONNECT_Pos);
-    NRF_PWM0->ENABLE      = (PWM_ENABLE_ENABLE_Enabled << PWM_ENABLE_ENABLE_Pos);
     NRF_PWM0->MODE        = (PWM_MODE_UPDOWN_Up << PWM_MODE_UPDOWN_Pos);
     NRF_PWM0->PRESCALER   = (PWM_PRESCALER_PRESCALER_DIV_16 <<
                                                      PWM_PRESCALER_PRESCALER_Pos);
@@ -25,6 +24,21 @@ static void my_setup_pwm(int pin_no)
                                                      PWM_SEQ_CNT_CNT_Pos);
     NRF_PWM0->SEQ[0].REFRESH  = 0;
     NRF_PWM0->SEQ[0].ENDDELAY = 0;
+}
+
+static void enable_pwm()
+{
+    NRF_PWM0->ENABLE      = (PWM_ENABLE_ENABLE_Enabled << PWM_ENABLE_ENABLE_Pos);
+}
+
+static void turn_on_22khz()
+{
+    NRF_PWM0->TASKS_SEQSTART[0] = 1;
+}
+
+static void turn_off_22khz()
+{
+    NRF_PWM0->TASKS_NEXTSTEP = 1;
 }
 
 int main()
@@ -50,13 +64,12 @@ int main()
   //  NRF_PWM0->TASKS_SEQSTART[0] = 1;
 
     my_setup_pwm(27);
+    enable_pwm();
 
     while(1) {
-        NRF_PWM0->TASKS_SEQSTART[0] = 1;
+        turn_on_22khz();
         nrf_delay_ms(10);
-        NRF_PWM0->TASKS_NEXTSTEP = 1;
-        nrf_delay_ms(5);
-        NRF_PWM0->TASKS_STOP = 1;
+        turn_off_22khz();
         nrf_delay_ms(5);
     }
 
