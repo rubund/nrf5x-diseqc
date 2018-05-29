@@ -2,7 +2,7 @@
 #include <nrf_delay.h>
 
 
-static uint16_t pwm_seq[8] = {23,30,10,46,100,50,40,100};
+static uint16_t pwm_seq[8] = {46,30,10,91,100,50,40,100};
 
 static void my_setup_pwm(int pin_no)
 {
@@ -13,7 +13,7 @@ static void my_setup_pwm(int pin_no)
     //                        (PWM_PSEL_OUT_CONNECT_Connected <<
     //                                                 PWM_PSEL_OUT_CONNECT_Pos);
     NRF_PWM0->MODE        = (PWM_MODE_UPDOWN_Up << PWM_MODE_UPDOWN_Pos);
-    NRF_PWM0->PRESCALER   = (PWM_PRESCALER_PRESCALER_DIV_16 <<
+    NRF_PWM0->PRESCALER   = (PWM_PRESCALER_PRESCALER_DIV_8 <<
                                                      PWM_PRESCALER_PRESCALER_Pos);
     //NRF_PWM0->COUNTERTOP  = (100 << PWM_COUNTERTOP_COUNTERTOP_Pos); //1 msec
     NRF_PWM0->LOOP        = (PWM_LOOP_CNT_Disabled << PWM_LOOP_CNT_Pos);
@@ -62,6 +62,7 @@ int main()
   //  NRF_PWM0->COUNTERTOP = (16000 << PWM_COUNTERTOP_COUNTERTOP_Pos);
   //
   //  NRF_PWM0->TASKS_SEQSTART[0] = 1;
+    NRF_CLOCK->TASKS_HFCLKSTART = 1;
 
     my_setup_pwm(27);
     enable_pwm();
