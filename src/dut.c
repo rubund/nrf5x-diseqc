@@ -25,7 +25,7 @@ int main()
   //
   //  NRF_PWM0->TASKS_SEQSTART[0] = 1;
 
-    uint16_t pwm_seq[8] = {50,30,10,100,100,50,40,100};
+    uint16_t pwm_seq[8] = {23,30,10,46,100,50,40,100};
     NRF_PWM0->PSEL.OUT[0] = (27 << PWM_PSEL_OUT_PIN_Pos) |
                             (PWM_PSEL_OUT_CONNECT_Connected <<
                                                      PWM_PSEL_OUT_CONNECT_Pos);
@@ -34,7 +34,7 @@ int main()
     //                                                 PWM_PSEL_OUT_CONNECT_Pos);
     NRF_PWM0->ENABLE      = (PWM_ENABLE_ENABLE_Enabled << PWM_ENABLE_ENABLE_Pos);
     NRF_PWM0->MODE        = (PWM_MODE_UPDOWN_Up << PWM_MODE_UPDOWN_Pos);
-    NRF_PWM0->PRESCALER   = (PWM_PRESCALER_PRESCALER_DIV_2 <<
+    NRF_PWM0->PRESCALER   = (PWM_PRESCALER_PRESCALER_DIV_16 <<
                                                      PWM_PRESCALER_PRESCALER_Pos);
     //NRF_PWM0->COUNTERTOP  = (100 << PWM_COUNTERTOP_COUNTERTOP_Pos); //1 msec
     NRF_PWM0->LOOP        = (PWM_LOOP_CNT_Disabled << PWM_LOOP_CNT_Pos);
