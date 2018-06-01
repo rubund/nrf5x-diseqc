@@ -139,7 +139,7 @@ int main()
     txbuffer[3] = 0;
     txbuffer[4] = 0;
     txbuffer[5] = 0;
-    packetlength = 6;
+    packetlength = 4;
 
     while(1) {
         while(((NRF_P0->IN) >> 11) & 0x1);
